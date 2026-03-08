@@ -1,7 +1,7 @@
 const foodMenu = [
   {
     name: "ข้าวผัดกุ้ง",
-    image: "/images/khaopad.jpg",
+    image: "/images/khao.jpg",
     nutrition: 
     {
       calories: 520,
@@ -10,7 +10,7 @@ const foodMenu = [
       fat: "15g"
     }
   },
-  /*{
+  {
     name: "ผัดไทยกุ้งสด",
     image: "/images/padthai.jpg",
     nutrition: 
@@ -31,7 +31,7 @@ const foodMenu = [
       carbs: "55g",
       fat: "28g"
     }
-  }*/
+  }
 ];
 
 module.exports = foodMenu;
