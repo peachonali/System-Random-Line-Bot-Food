@@ -1,4 +1,17 @@
+// buildFlexMessage constructs a LINE Flex message. It expects food.image
+// to be either an absolute URL or a path beginning with "/". If the latter,
+// we prepend BASE_URL, which should be configured in the environment (e.g.
+// https://system-random-line-bot-food.onrender.com). This makes sure the image
+// is reachable by LINE's servers.
+const BASE_URL = process.env.BASE_URL || "";
+
 function createFlexMessage(food) {
+  let imageUrl = food.image;
+  if (imageUrl.startsWith("/")) {
+    const base = BASE_URL.replace(/\/$/, "");
+    imageUrl = base + imageUrl;
+  }
+
   return {
     type: "flex",
     altText: "เมนูอาหารแนะนำ",
@@ -6,7 +19,7 @@ function createFlexMessage(food) {
       type: "bubble",
       hero: {
         type: "image",
-        url: food.image,
+        url: imageUrl,
         size: "full",
         aspectRatio: "20:13",
         aspectMode: "cover"
