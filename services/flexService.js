@@ -1,34 +1,51 @@
-// buildFlexMessage constructs a LINE Flex message. It expects food.image
-// to be either an absolute URL or a path beginning with "/". If the latter,
-// we prepend BASE_URL, which should be configured in the environment (e.g.
-// https://system-random-line-bot-food.onrender.com). This makes sure the image
-// is reachable by LINE's servers.
-// Determine the base URL for images. In Render the platform provides
-// RENDER_EXTERNAL_URL (e.g. "https://system-random-line-bot-food.onrender.com").
-// We also allow overriding with BASE_URL. For local development we'll fall back
-// to localhost using PORT if nothing else is set; this isn't used by LINE
-// itself but keeps `npm start` from crashing.
-const BASE_URL =
-  process.env.BASE_URL ||
-  process.env.RENDER_EXTERNAL_URL ||
-  (process.env.PORT ? `http://localhost:${process.env.PORT}` : "");
+function getBaseUrl() {
+  const url = (
+    process.env.BASE_URL ||
+    process.env.RENDER_EXTERNAL_URL ||
+    // use PORT env var if defined, otherwise match the default used by app.js
+    `http://localhost:${process.env.PORT || 3000}`
+  ).replace(/\/$/, "");
+
+  // if we're still pointing at localhost the LINE servers won't be able to
+  // access the images.  This often means ngrok didn't start or the developer
+  // forgot to set BASE_URL.  Log a visible warning so the problem is obvious.
+  if (
+    url.startsWith("http://localhost") &&
+    process.env.NODE_ENV !== "production"
+  ) {
+    console.warn(
+      "WARNING: BASE_URL is localhost; LINE cannot fetch images."
+    );
+    console.warn(
+      "          run with ngrok (npm start handles this) or set BASE_URL"
+    );
+  }
+
+  return url;
+}
 
 const fs = require("fs");
 const path = require("path");
 
 function cacheBustedUrl(relPath) {
   // relPath begins with '/'
-  const base = BASE_URL.replace(/\/$/, "");
+  const base = getBaseUrl();
   let url = base + relPath;
   try {
-    const filePath = path.join(__dirname, "..", "public", relPath);
-    const stats = fs.statSync(filePath);
-    const mtime = stats.mtime.getTime();  // เวลาแก้ไขไฟล์ล่าสุด
-    url += (url.includes("?") ? "&" : "?") + "t=" + mtime;
-  } catch (e) {
-    // if file read fails just return plain url
-    console.warn("cacheBustedUrl failed for", relPath, e.message);
-  }
+    // strip leading slash so path.join doesn't treat it as absolute
+  const filePath = path.join(
+    __dirname,
+    "..",
+    "public",
+    relPath.replace(/^\//, "")
+  );
+  const stats = fs.statSync(filePath);
+  const mtime = stats.mtime.getTime(); // เวลาแก้ไขไฟล์ล่าสุด
+  url += (url.includes("?") ? "&" : "?") + "t=" + mtime;
+} catch (e) {
+  // if file read fails just return plain url
+  console.warn("cacheBustedUrl failed for", relPath, e.message);
+}
   return url;
 }
 
@@ -83,5 +100,7 @@ function createFlexMessage(food) {
 }
 
 module.exports = {
-  createFlexMessage
+  createFlexMessage,
+  // helpers exported for tests / manual inspection
+  getBaseUrl
 };

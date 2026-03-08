@@ -45,7 +45,29 @@ app.get("/", (req, res) => {
 // ใช้ port ของ Render
 const PORT = process.env.PORT || 3000;
 
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
   console.log("Server running on port " + PORT);
+
+  // for local development we automatically open an ngrok tunnel so that
+  // LINE's servers (and the flex image URLs) can reach the bot without
+  // requiring the user to manually set BASE_URL.  The tunnel URL is stored
+  // in process.env.BASE_URL so the flex service will use it.
+  if (
+    process.env.NODE_ENV !== "production" &&
+    !process.env.BASE_URL &&
+    !process.env.RENDER_EXTERNAL_URL
+  ) {
+    try {
+      const ngrok = require("ngrok");
+      const url = await ngrok.connect(PORT);
+      process.env.BASE_URL = url;
+      console.log("ngrok tunnel opened at", url);
+      console.log(
+        "(you can set BASE_URL manually in .env if you want to lock the URL)"
+      );
+    } catch (err) {
+      console.error("failed to start ngrok tunnel:", err);
+    }
+  }
 });
 
