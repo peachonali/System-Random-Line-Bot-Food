@@ -13,11 +13,30 @@ const BASE_URL =
   process.env.RENDER_EXTERNAL_URL ||
   (process.env.PORT ? `http://localhost:${process.env.PORT}` : "");
 
+const fs = require("fs");
+const path = require("path");
+const crypto = require("crypto");
+
+function cacheBustedUrl(relPath) {
+  // relPath begins with '/'
+  const base = BASE_URL.replace(/\/$/, "");
+  let url = base + relPath;
+  try {
+    const filePath = path.join(__dirname, "..", "public", relPath);
+    const data = fs.readFileSync(filePath);
+    const hash = crypto.createHash("md5").update(data).digest("hex");
+    url += (url.includes("?") ? "&" : "?") + "v=" + hash;
+  } catch (e) {
+    // if file read fails just return plain url
+    console.warn("cacheBustedUrl failed for", relPath, e.message);
+  }
+  return url;
+}
+
 function createFlexMessage(food) {
   let imageUrl = food.image;
   if (imageUrl.startsWith("/")) {
-    const base = BASE_URL.replace(/\/$/, "");
-    imageUrl = base + imageUrl;
+    imageUrl = cacheBustedUrl(imageUrl);
   }
 
   return {
