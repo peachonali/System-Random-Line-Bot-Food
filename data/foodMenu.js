@@ -1,20 +1,20 @@
 const foodMenu = [
   {
     name: "ข้าวผัดกุ้ง",
-    // ใช้ path แบบ relative; Express จะ serve จาก public/ หมายความว่า URL
-    // จะเป็น https://your-domain/images/khao-pad.jpg
-    image: "/images/khao-pad.jpg",
-    nutrition: {
+    image: "/images/khaopad.jpg",
+    nutrition: 
+    {
       calories: 520,
       protein: "25g",
       carbs: "60g",
       fat: "15g"
     }
   },
-  {
+  /*{
     name: "ผัดไทยกุ้งสด",
-    image: "/images/pad-thai.jpg",
-    nutrition: {
+    image: "/images/padthai.jpg",
+    nutrition: 
+    {
       calories: 486,
       protein: "21g",
       carbs: "65g",
@@ -23,14 +23,15 @@ const foodMenu = [
   },
   {
     name: "ข้าวกะเพราหมูไข่ดาว",
-    image: "/images/khao-kaprao.jpg",
-    nutrition: {
+    image: "/images/kaprao.jpg",
+    nutrition: 
+    {
       calories: 650,
       protein: "30g",
       carbs: "55g",
       fat: "28g"
     }
-  }
+  }*/
 ];
 
 module.exports = foodMenu;
