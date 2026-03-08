@@ -23,7 +23,7 @@ const foodMenu = [
   },
   {
     name: "ข้าวกะเพราหมูไข่ดาว",
-    image: "/images/kaprao.jpg",
+    image: "/images/77dbed27-b746-4e00-8399-96fad42b621d.jpg",
     nutrition: 
     {
       calories: 650,
