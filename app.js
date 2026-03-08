@@ -8,6 +8,9 @@ const { handleMessage } = require("./controllers/messageController");
 
 const app = express();
 
+// serve static files from public directory (eg. images)
+app.use(express.static("public"));
+
 // webhook route needs raw body for signature validation so we apply
 // the LINE middleware before parsing JSON. Other routes can still use
 // express.json() if needed.
@@ -45,3 +48,4 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log("Server running on port " + PORT);
 });
+
