@@ -3,7 +3,15 @@
 // we prepend BASE_URL, which should be configured in the environment (e.g.
 // https://system-random-line-bot-food.onrender.com). This makes sure the image
 // is reachable by LINE's servers.
-const BASE_URL = process.env.BASE_URL || "";
+// Determine the base URL for images. In Render the platform provides
+// RENDER_EXTERNAL_URL (e.g. "https://system-random-line-bot-food.onrender.com").
+// We also allow overriding with BASE_URL. For local development we'll fall back
+// to localhost using PORT if nothing else is set; this isn't used by LINE
+// itself but keeps `npm start` from crashing.
+const BASE_URL =
+  process.env.BASE_URL ||
+  process.env.RENDER_EXTERNAL_URL ||
+  (process.env.PORT ? `http://localhost:${process.env.PORT}` : "");
 
 function createFlexMessage(food) {
   let imageUrl = food.image;
