@@ -5,7 +5,7 @@ const foodMenu = [
     nutrition: 
     {
       calories: 520,
-      protein: "25g",
+      protein: "30g",
       carbs: "60g",
       fat: "15g"
     }
