@@ -15,7 +15,6 @@ const BASE_URL =
 
 const fs = require("fs");
 const path = require("path");
-const crypto = require("crypto");
 
 function cacheBustedUrl(relPath) {
   // relPath begins with '/'
@@ -23,9 +22,9 @@ function cacheBustedUrl(relPath) {
   let url = base + relPath;
   try {
     const filePath = path.join(__dirname, "..", "public", relPath);
-    const data = fs.readFileSync(filePath);
-    const hash = crypto.createHash("md5").update(data).digest("hex");
-    url += (url.includes("?") ? "&" : "?") + "v=" + hash;
+    const stats = fs.statSync(filePath);
+    const mtime = stats.mtime.getTime();  // เวลาแก้ไขไฟล์ล่าสุด
+    url += (url.includes("?") ? "&" : "?") + "t=" + mtime;
   } catch (e) {
     // if file read fails just return plain url
     console.warn("cacheBustedUrl failed for", relPath, e.message);
