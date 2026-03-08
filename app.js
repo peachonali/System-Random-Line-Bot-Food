@@ -8,10 +8,16 @@ const { handleMessage } = require("./controllers/messageController");
 
 const app = express();
 
-app.use(express.json());
+// webhook route needs raw body for signature validation so we apply
+// the LINE middleware before parsing JSON. Other routes can still use
+// express.json() if needed.
 
 // webhook
-app.post("/webhook", line.middleware(config), async (req, res) => {
+app.post(
+  "/webhook",
+  line.middleware(config),
+  express.json(),
+  async (req, res) => {
 
   const events = req.body.events;
 
@@ -26,6 +32,11 @@ app.post("/webhook", line.middleware(config), async (req, res) => {
   );
 
   res.status(200).end();
+});
+
+// มีหน้ารากให้ดูง่ายๆ เวลาทดสอบ
+app.get("/", (req, res) => {
+  res.send("Line bot is running");
 });
 
 // ใช้ port ของ Render
