@@ -50,52 +50,57 @@ function cacheBustedUrl(relPath) {
 }
 
 function createFlexMessage(food) {
-  let imageUrl = food.image;
-  if (imageUrl.startsWith("/")) {
-    imageUrl = cacheBustedUrl(imageUrl);
+  const contents = {
+    type: "bubble",
+    body: {
+      type: "box",
+      layout: "vertical",
+      contents: [
+        {
+          type: "text",
+          text: food.name,
+          weight: "bold",
+          size: "xl"
+        },
+        {
+          type: "text",
+          text: `พลังงาน: ${food.nutrition.calories} kcal`
+        },
+        {
+          type: "text",
+          text: `โปรตีน: ${food.nutrition.protein}`
+        },
+        {
+          type: "text",
+          text: `คาร์โบไฮเดรต: ${food.nutrition.carbs}`
+        },
+        {
+          type: "text",
+          text: `ไขมัน: ${food.nutrition.fat}`
+        }
+      ]
+    }
+  };
+
+  // Add hero only if image exists
+  if (food.image && food.image.trim() !== "") {
+    let imageUrl = food.image;
+    if (imageUrl.startsWith("/")) {
+      imageUrl = cacheBustedUrl(imageUrl);
+    }
+    contents.hero = {
+      type: "image",
+      url: imageUrl,
+      size: "full",
+      aspectRatio: "20:13",
+      aspectMode: "cover"
+    };
   }
 
   return {
     type: "flex",
     altText: "เมนูอาหารแนะนำ",
-    contents: {
-      type: "bubble",
-      hero: {
-        type: "image",
-        url: imageUrl,
-        size: "full",
-        aspectRatio: "20:13",
-        aspectMode: "cover"
-      },
-      body: {
-        type: "box",
-        layout: "vertical",
-        contents: [
-          {
-            type: "text",
-            text: food.name,
-            weight: "bold",
-            size: "xl"
-          },
-          {
-            type: "text",
-            text: `พลังงาน: ${food.nutrition.calories} kcal`
-          },
-          {
-            type: "text",
-            text: `โปรตีน: ${food.nutrition.protein}`
-          },
-          {
-            type: "text",
-            text: `คาร์โบไฮเดรต: ${food.nutrition.carbs}`
-          },
-          {
-            type: "text",
-            text: `ไขมัน: ${food.nutrition.fat}`
-          }
-        ]
-      }
-    }
+    contents
   };
 }
 

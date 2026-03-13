@@ -26,11 +26,22 @@ app.post(
 
   await Promise.all(
     events.map(async (event) => {
-
-      if (event.type === "message" && event.message.type === "text") {
-        return handleMessage(event);
+      try {
+        if (event.type === "message" && event.message.type === "text") {
+          return await handleMessage(event);
+        }
+      } catch (err) {
+        console.error("Error handling message:", err);
+        // Optionally send error reply
+        try {
+          await client.replyMessage(event.replyToken, {
+            type: "text",
+            text: "เกิดข้อผิดพลาด กรุณาลองใหม่"
+          });
+        } catch (replyErr) {
+          console.error("Error sending error reply:", replyErr);
+        }
       }
-
     })
   );
 
