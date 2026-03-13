@@ -10,13 +10,13 @@ const foodMenu = [
     }
   },
     {
-    name: "มันไก่",
-    image: "",
+    name: "ข้าวมันไก่",
+    image: "/images/age.jpg",
     nutrition: {
-      calories: 750,
-      protein: "30g",
-      carbs: "65g",
-      fat: "35g"
+      calories: 800,
+      protein: "20g",
+      carbs: "55g",
+      fat: "50g"
     }
   }
 ];
