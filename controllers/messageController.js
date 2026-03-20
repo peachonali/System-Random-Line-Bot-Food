@@ -3,6 +3,24 @@ const { getRandomFood } = require("../services/foodService");
 const { createFlexMessage } = require("../services/flexService");
 const { analyzeMessage } = require("../services/AIService");
 
+function handleSticker(event) {
+  const stickerId = event.message.stickerId;
+
+  // 🎯 ตอบตามอารมณ์ sticker (แบบง่าย)
+  const replies = [
+    "ส่งสติกเกอร์มานี่ แปลว่าหิวใช่ไหม 😆",
+    "อารมณ์นี้ ต้องกินอะไรอร่อยๆแล้วนะ 🍛",
+    "สติกเกอร์น่ารักนะ 😄 แต่กินข้าวยัง!"
+  ];
+
+  const randomText = replies[Math.floor(Math.random() * replies.length)];
+
+  return client.replyMessage(event.replyToken, {
+    type: "text",
+    text: randomText
+  });
+}
+
 function getSmartReply(level) {
   const replies = {
     high: [
