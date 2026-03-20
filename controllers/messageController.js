@@ -14,34 +14,34 @@ async function handleMessage(event) {
   try {
     const result = await analyzeMessage(text);
 
-    if (result.intent === "hungry") {
+    // 🔥 กันกรณี result แปลก
+    const intent = result?.intent || "chat";
+
+    // 🎯 กรณีอยากกินอาหาร
+    if (intent === "food_request") {
       const food = getRandomFood();
       const flex = createFlexMessage(food);
-      return client.replyMessage(event.replyToken, flex);
 
-    } else if (result.intent === "recommend_food") {
-      // แนะนำแบบมีเงื่อนไข - อาจจะวิเคราะห์ข้อความเพิ่มเติม
-      const food = getRandomFood();
-      const flex = createFlexMessage(food);
-      return client.replyMessage(event.replyToken, flex);
-
-    } else if (result.intent === "chat") {
-      // คุยกับ AI
-      const aiResponse = await chatWithAI(text);
-      return client.replyMessage(event.replyToken, {
-        type: "text",
-        text: aiResponse
-      });
-
-    } else {
-      return client.replyMessage(event.replyToken, {
-        type: "text",
-        text: "ฉันไม่เข้าใจ สามารถพิมพ์ 'หิวข้าว' หรือ 'กินอะไรดี' ได้นะครับ"
-      });
+      return client.replyMessage(event.replyToken, [
+        {
+          type: "text",
+          text: "หิวใช่ไหม 😄 เดี๋ยวแนะนำเมนูให้ครับ"
+        },
+        flex
+      ]);
     }
+
+    // 💬 กรณี chat
+    const aiResponse = await chatWithAI(text);
+
+    return client.replyMessage(event.replyToken, {
+      type: "text",
+      text: aiResponse || "ผมยังตอบไม่ได้นะ ลองพิมพ์ใหม่อีกทีครับ 🙏"
+    });
 
   } catch (error) {
     console.error("Error handling message:", error);
+
     return client.replyMessage(event.replyToken, {
       type: "text",
       text: "ขอโทษครับ ระบบมีปัญหา กรุณาลองใหม่"
@@ -50,18 +50,31 @@ async function handleMessage(event) {
 }
 
 async function chatWithAI(text) {
-  const response = await openai.chat.completions.create({
-    model: "gpt-4o-mini",
-    messages: [
-      {
-        role: "system",
-        content: "คุณคือ AI ผู้ช่วยสำหรับบอทแนะนำอาหาร เป็นมิตรและให้คำแนะนำที่ดี"
-      },
-      { role: "user", content: text }
-    ]
-  });
+  try {
+    const response = await openai.chat.completions.create({
+      model: "gpt-4o-mini",
+      temperature: 0.7, // 💬 ให้คุยธรรมชาติมากขึ้น
+      messages: [
+        {
+          role: "system",
+          content: `
+คุณคือ AI ผู้ช่วยใน LINE
+- พูดภาษาไทย
+- เป็นกันเอง
+- ไม่ต้องทางการ
+- ถ้าผู้ใช้พูดถึงอาหาร ให้แนะนำได้เล็กน้อย
+`
+        },
+        { role: "user", content: text }
+      ]
+    });
 
-  return response.choices[0].message.content;
+    return response.choices[0].message.content;
+
+  } catch (err) {
+    console.error("chatWithAI error:", err);
+    return "ตอนนี้ระบบแชทมีปัญหานิดหน่อย ลองใหม่อีกทีนะ 🙏";
+  }
 }
 
 module.exports = {
