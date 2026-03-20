@@ -22,60 +22,76 @@ function getSmartReply(level) {
 }
 
 function getChatReply(text) {
-  if (text.includes("เหนื่อย")) {
+  const lowerText = text.toLowerCase();
+
+  // 😴 เหนื่อย
+  if (lowerText.includes("เหนื่อย")) {
     return "เหนื่อยก็พักก่อนนะครับ ✨ หรือจะหาอะไรอร่อยๆกินดี 😄";
   }
 
-  if (text.includes("เรียน")) {
+  // 📚 เรียน
+  if (lowerText.includes("เรียน")) {
     return "สู้ๆนะครับ 📚 เรียนเสร็จแล้วอย่าลืมหาอะไรกินนะ!";
   }
 
-  if (text.includes("สวัสดี")) {
-    return "สวัสดีครับ! ยินดีที่ได้ช่วยเหลือคุณ 😊";
+  // 👋 ทักทาย
+  if (lowerText.includes("สวัสดี") || lowerText.includes("ดีครับ") || lowerText.includes("hello")) {
+    return "สวัสดีครับ! 😊 วันนี้อยากกินอะไรดี เดี๋ยวผมช่วยแนะนำให้!";
   }
 
-  if (text.includes("แฟนไม่รักผมเลย")) {
-    return "อืม…ฟังดูเหมือนอาการเดียวกับ “ยังไม่ได้กินข้าว” เลยนะครับ 😅 ลองกินอะไรอร่อยๆดูนะ อาจจะช่วยให้รู้สึกดีขึ้นก็ได้!";
+  // 💔 เรื่องความรัก (ฉลาดขึ้น)
+  if (lowerText.includes("แฟน") && lowerText.includes("ไม่รัก")) {
+    return "โห…ฟังดูแอบเศร้านะครับ 😢 แต่ลองหาอะไรอร่อยๆกินก่อนดีไหม อย่างน้อย “ข้าวไม่เคยทิ้งเรา” 🍛";
   }
 
-  if (text.includes("แฟนไม่รักแต่ไม่อยากกินข้าว")) {
-    return "ไปกินข้าวก่อน อย่างน้อย “ข้าวยังไม่เทคุณ! ถ้านึกเมนูไม่ออก ลองถามผมได้นะครับ 😄";
+  // 💔 ไม่อยากกิน + เศร้า
+  if (
+    (lowerText.includes("ไม่อยากกิน") || lowerText.includes("ไม่หิว")) &&
+    lowerText.includes("แฟน")
+  ) {
+    return "เข้าใจเลยครับ 😢 แต่ลองกินอะไรนิดนึงนะ อย่างน้อยให้ตัวเองโอเคขึ้นก่อน แล้วค่อยว่ากัน 💛";
   }
+
+  // 🤖 fallback
   return "ผมยังคุยไม่เก่ง 😅 แต่ถ้าหิวลองถามเรื่องอาหารได้นะ!";
 }
 
 async function handleMessage(event) {
-  const text = event.message.text;
+  const messageType = event.message.type;
 
   try {
-    const result = analyzeMessage(text);
 
-    const intent = result?.intent || "chat";
-    const level = result?.level || "low";
-
-    // 🎯 FOOD
-    if (intent === "food_request") {
-      const food = getRandomFood();
-      const flex = createFlexMessage(food);
-
-      const smartText = getSmartReply(level);
-
-      return client.replyMessage(event.replyToken, [
-        {
-          type: "text",
-          text: smartText
-        },
-        flex
-      ]);
+    // 🎯 🟡 กรณี STICKER
+    if (messageType === "sticker") {
+      return handleSticker(event);
     }
 
-    // 💬 CHAT
-    const reply = getChatReply(text);
+    // 🎯 🟢 กรณี TEXT
+    if (messageType === "text") {
+      const text = event.message.text;
 
-    return client.replyMessage(event.replyToken, {
-      type: "text",
-      text: reply
-    });
+      const result = analyzeMessage(text);
+      const intent = result?.intent || "chat";
+      const level = result?.level || "low";
+
+      if (intent === "food_request") {
+        const food = getRandomFood();
+        const flex = createFlexMessage(food);
+
+        return client.replyMessage(event.replyToken, [
+          {
+            type: "text",
+            text: "หิวใช่ไหม 😄 เดี๋ยวแนะนำเมนูให้ครับ"
+          },
+          flex
+        ]);
+      }
+
+      return client.replyMessage(event.replyToken, {
+        type: "text",
+        text: getChatReply(text)
+      });
+    }
 
   } catch (error) {
     console.error("Error handling message:", error);

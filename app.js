@@ -21,8 +21,8 @@ app.post(
     await Promise.all(
       events.map(async (event) => {
         try {
-          if (event.type !== "message" || event.message.type !== "text") {
-            return null;
+          if (event.type === "message") {
+            return await handleMessage(event);;
           }
 
           return await handleMessage(event);
