@@ -13,14 +13,12 @@ function analyzeMessage(text) {
 
   let score = 0;
 
-  // 🔥 เช็คคำแรง (หิวจัด)
   strongFoodWords.forEach(word => {
     if (lowerText.includes(word)) {
       score += 2;
     }
   });
 
-  // 🔥 เช็คคำทั่วไป
   normalFoodWords.forEach(word => {
     if (lowerText.includes(word)) {
       score += 1;

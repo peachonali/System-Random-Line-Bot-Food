@@ -6,7 +6,6 @@ const { analyzeMessage } = require("../services/AIService");
 function handleSticker(event) {
   const stickerId = event.message.stickerId;
 
-  // 🎯 ตอบตามอารมณ์ sticker (แบบง่าย)
   const replies = [
     "ส่งสติกเกอร์มานี่ แปลว่าหิวใช่ไหม 😆",
     "อารมณ์นี้ ต้องกินอะไรอร่อยๆแล้วนะ 🍛",
@@ -42,27 +41,22 @@ function getSmartReply(level) {
 function getChatReply(text) {
   const lowerText = text.toLowerCase();
 
-  // 😴 เหนื่อย
   if (lowerText.includes("เหนื่อย")) {
     return "เหนื่อยก็พักก่อนนะครับ ✨ หรือจะหาอะไรอร่อยๆกินดี 😄";
   }
 
-  // 📚 เรียน
   if (lowerText.includes("เรียน")) {
     return "สู้ๆนะครับ 📚 เรียนเสร็จแล้วอย่าลืมหาอะไรกินนะ!";
   }
 
-  // 👋 ทักทาย
   if (lowerText.includes("สวัสดี") || lowerText.includes("ดีครับ") || lowerText.includes("hello")) {
     return "สวัสดีครับ! 😊 วันนี้อยากกินอะไรดี เดี๋ยวผมช่วยแนะนำให้!";
   }
 
-  // 💔 เรื่องความรัก (ฉลาดขึ้น)
   if (lowerText.includes("แฟน") && lowerText.includes("ไม่รัก")) {
     return "โห…ฟังดูแอบเศร้านะครับ 😢 แต่ลองหาอะไรอร่อยๆกินก่อนดีไหม อย่างน้อย “ข้าวไม่เคยทิ้งเรา” 🍛";
   }
 
-  // 💔 ไม่อยากกิน + เศร้า
   if (
     (lowerText.includes("ไม่อยากกิน") || lowerText.includes("ไม่หิว")) &&
     lowerText.includes("แฟน")
@@ -70,7 +64,6 @@ function getChatReply(text) {
     return "เข้าใจเลยครับ 😢 แต่ลองกินอะไรนิดนึงนะ อย่างน้อยให้ตัวเองโอเคขึ้นก่อน แล้วค่อยว่ากัน 💛";
   }
 
-  // 🤖 fallback
   return "ผมยังคุยไม่เก่ง 😅 แต่ถ้าหิวลองถามเรื่องอาหารได้นะ!";
 }
 
@@ -79,12 +72,10 @@ async function handleMessage(event) {
 
   try {
 
-    // 🎯 🟡 กรณี STICKER
     if (messageType === "sticker") {
       return handleSticker(event);
     }
 
-    // 🎯 🟢 กรณี TEXT
     if (messageType === "text") {
       const text = event.message.text;
 
