@@ -1,51 +1,26 @@
-const OpenAI = require("openai");
+function analyzeMessage(text) {
+  const lowerText = text.toLowerCase();
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY
-});
+  const foodKeywords = [
+    "หิว", "กิน", "อาหาร", "ข้าว",
+    "อยากกิน", "แนะนำ", "ของกิน",
+    "ร้านอาหาร", "กินอะไรดี"
+  ];
 
-async function analyzeMessage(text) {
-  const response = await openai.chat.completions.create({
-    model: "gpt-4o-mini",
-    temperature: 0,
-    messages: [
-      {
-        role: "system",
-        content: `
-คุณคือ AI วิเคราะห์ intent ของผู้ใช้
+  let score = 0;
 
-ให้วิเคราะห์ว่าผู้ใช้ "ต้องการอาหาร" หรือแค่ "พูดคุยทั่วไป"
-
-ตอบเป็น JSON เท่านั้น เช่น:
-{ "intent": "food_request" }
-
-กฎ:
-- ถ้าผู้ใช้พูดถึงความหิว, อยากกิน, ขอเมนู, ขอแนะนำอาหาร → food_request
-- ถ้าเป็นการคุยทั่วไป → chat
-- ห้ามตอบอย่างอื่นนอกจาก JSON
-`
-      },
-      {
-        role: "user",
-        content: text
-      }
-    ]
+  foodKeywords.forEach(keyword => {
+    if (lowerText.includes(keyword)) {
+      score++;
+    }
   });
 
-  try {
-    let content = response.choices[0].message.content.trim();
-
-    // 🔥 กันกรณี AI ใส่ ```json ```
-    if (content.startsWith("```")) {
-      content = content.replace(/```json|```/g, "").trim();
-    }
-
-    return JSON.parse(content);
-
-  } catch (err) {
-    console.error("AI parse error:", err);
-    return { intent: "chat" }; // fallback
+  // 🔥 ใช้ score แทน boolean (ฉลาดกว่า)
+  if (score >= 1) {
+    return { intent: "food_request" };
   }
+
+  return { intent: "chat" };
 }
 
 module.exports = { analyzeMessage };
