@@ -3,32 +3,67 @@ const { getRandomFood } = require("../services/foodService");
 const { createFlexMessage } = require("../services/flexService");
 const { analyzeMessage } = require("../services/AIService");
 
+function getSmartReply(level) {
+  const replies = {
+    high: [
+      "โอ้โห ดูเหมือนจะหิวมากเลยนะ 😆 จัดเมนูให้ด่วน!",
+      "หิวขนาดนี้ ต้องรีบกินแล้วนะ! เดี๋ยวผมจัดให้ 🍛",
+      "ทนไม่ไหวแล้วใช่ไหม 😄 เอาเมนูนี้ไปเลย!"
+    ],
+    medium: [
+      "หิวแล้วใช่ไหม เดี๋ยวแนะนำเมนูให้ครับ 😋",
+      "กำลังคิดเรื่องกินอยู่ใช่ไหม 😄 ลองเมนูนี้ดู!",
+      "อยากกินอะไรสักอย่างใช่ไหม ผมช่วยเลือกให้!"
+    ]
+  };
+
+  const arr = replies[level] || replies["medium"];
+  return arr[Math.floor(Math.random() * arr.length)];
+}
+
+function getChatReply(text) {
+  if (text.includes("เหนื่อย")) {
+    return "เหนื่อยก็พักก่อนนะครับ ✨ หรือจะหาอะไรอร่อยๆกินดี 😄";
+  }
+
+  if (text.includes("เรียน")) {
+    return "สู้ๆนะครับ 📚 เรียนเสร็จแล้วอย่าลืมหาอะไรกินนะ!";
+  }
+
+  return "ผมยังคุยไม่เก่ง 😅 แต่ถ้าหิวลองถามเรื่องอาหารได้นะ!";
+}
+
 async function handleMessage(event) {
   const text = event.message.text;
 
   try {
-    const result = await analyzeMessage(text);
+    const result = analyzeMessage(text);
 
     const intent = result?.intent || "chat";
+    const level = result?.level || "low";
 
-    // 🎯 กรณีอยากกินอาหาร
+    // 🎯 FOOD
     if (intent === "food_request") {
       const food = getRandomFood();
       const flex = createFlexMessage(food);
 
+      const smartText = getSmartReply(level);
+
       return client.replyMessage(event.replyToken, [
         {
           type: "text",
-          text: "หิวใช่ไหม 😄 เดี๋ยวแนะนำเมนูให้ครับ"
+          text: smartText
         },
         flex
       ]);
     }
 
-    // 💬 fallback chat (ไม่ใช้ AI แล้ว)
+    // 💬 CHAT
+    const reply = getChatReply(text);
+
     return client.replyMessage(event.replyToken, {
       type: "text",
-      text: "ผมยังคุยได้ไม่เก่ง 😅 แต่ถ้าหิวลองพิมพ์เกี่ยวกับอาหารได้นะ!"
+      text: reply
     });
 
   } catch (error) {

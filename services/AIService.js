@@ -1,7 +1,11 @@
 function analyzeMessage(text) {
   const lowerText = text.toLowerCase();
 
-  const foodKeywords = [
+  const strongFoodWords = [
+    "หิวมาก", "โคตรหิว", "หิวสุดๆ", "อยากกินมาก"
+  ];
+
+  const normalFoodWords = [
     "หิว", "กิน", "อาหาร", "ข้าว",
     "อยากกิน", "แนะนำ", "ของกิน",
     "ร้านอาหาร", "กินอะไรดี"
@@ -9,18 +13,29 @@ function analyzeMessage(text) {
 
   let score = 0;
 
-  foodKeywords.forEach(keyword => {
-    if (lowerText.includes(keyword)) {
-      score++;
+  // 🔥 เช็คคำแรง (หิวจัด)
+  strongFoodWords.forEach(word => {
+    if (lowerText.includes(word)) {
+      score += 2;
     }
   });
 
-  // 🔥 ใช้ score แทน boolean (ฉลาดกว่า)
-  if (score >= 1) {
-    return { intent: "food_request" };
+  // 🔥 เช็คคำทั่วไป
+  normalFoodWords.forEach(word => {
+    if (lowerText.includes(word)) {
+      score += 1;
+    }
+  });
+
+  if (score >= 2) {
+    return { intent: "food_request", level: "high" };
   }
 
-  return { intent: "chat" };
+  if (score === 1) {
+    return { intent: "food_request", level: "medium" };
+  }
+
+  return { intent: "chat", level: "low" };
 }
 
 module.exports = { analyzeMessage };
